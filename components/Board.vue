@@ -10,14 +10,14 @@
         {{ empty }}
       </li>
       <li
-        class="bg-[#00aaff] w-10 h-10 m-[5px] cursor-pointer rounded-[4px] leading-10 text-center shadow-[0_4px_0_#0088cc]"
-        v-for="(num, index) in randomNums"
-        :key="num"
-        :class="{ pressed: btnState }"
         v-show="!initial"
-        @click="pushBtn(num, index)"
+        class="bg-[#00aaff] w-10 h-10 m-[5px] cursor-pointer rounded-[4px] leading-10 text-center shadow-[0_4px_0_#0088cc]"
+        v-for="(btnInfo, index) in btnInfos"
+        :key="btnInfo.id"
+        @click="isPress(index)"
+        :class="{ pressed: btnInfo.isPress }"
       >
-        {{ num }}
+        {{ btnInfo.num }}
       </li>
     </ul>
   </div>
@@ -33,9 +33,9 @@
 </style>
 
 <script setup lang="ts">
-const props = defineProps(["randomNums", "empties", "initial", "btnState"]);
-const emits = defineEmits(["pushBtn"]);
-const pushBtn = (num: number, index: number) => {
-  emits("pushBtn", num, index);
+const props = defineProps(["empties", "initial", "btnInfos"]);
+const emits = defineEmits(["isPress"]);
+const isPress = (index: number) => {
+  emits("isPress", index);
 };
 </script>
