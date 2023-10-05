@@ -4,7 +4,14 @@
       :levelInfos="levelInfos"
       @changeLevel="changeLevel"
     ></SelectLevels>
-    <div class="w-[120px] my-4 mx-auto">
+    <div
+      class="my-4 mx-auto"
+      :class="{
+        easySize: levelInfos[0].selectedLevel,
+        nomalSize: levelInfos[1].selectedLevel,
+        hardSize: levelInfos[2].selectedLevel,
+      }"
+    >
       <Timer :timer="timer"></Timer>
       <Board
         :initial="initial"
@@ -12,27 +19,63 @@
         :btnInfos="btnInfos"
         @isPress="isPress"
       ></Board>
-      <Button @click="activeBtn"></Button>
+      <Button @activeBtn="activeBtn"></Button>
     </div>
   </div>
 </template>
 
+<style>
+.easySize {
+  width: 220px;
+}
+
+.nomalSize {
+  width: 270px;
+}
+
+.hardSize {
+  width: 320px;
+}
+</style>
+
 <script setup lang="ts">
 // 難易度設定
-let currentLevel = ref<number>(0);
 const levelInfos = ref<any[]>([
-  { text: "EASY", selectedLevel: true, level: 0, side: 4 },
-  { text: "NOMAL", selectedLevel: false, level: 1, side: 5 },
-  { text: "HARD", selectedLevel: false, level: 2, side: 6 },
+  { id: 0, text: "EASY", selectedLevel: true, side: 4 },
+  { id: 1, text: "NOMAL", selectedLevel: false, side: 5 },
+  { id: 2, text: "HARD", selectedLevel: false, side: 6 },
 ]);
+let currentLevel = ref<number>(0);
 const changeLevel = (index: number) => {
+  clearTimeout(timeoutId);
+  timer.value = 0;
+  initial.value = true;
   for (let i = 0; i < levelInfos.value.length; i++) {
     levelInfos.value[i].selectedLevel = false;
   }
   levelInfos.value[index].selectedLevel = true;
-  currentLevel.value = levelInfos.value[index].level;
+  currentLevel.value = index;
+  nums.value = [];
+  createNumber();
+  empties.value = [];
+  createEmpty();
+  // console.log(nums.value);
 };
-// console.log(currentLevel.value);
+
+// 初期パネルの生成
+let nums = ref<number[]>([]);
+
+function createNumber() {
+  for (let i = 0; i < levelInfos.value[currentLevel.value].side ** 2; i++) {
+    nums.value.push(i);
+  }
+}
+createNumber();
+
+let btnInfos = ref<any[]>([]);
+onMounted(() => {
+  randomNumsInfo();
+});
 
 // ボタンの初期化
 const initial = ref<boolean>(true);
@@ -41,29 +84,22 @@ let randomNums = ref<number[]>([]);
 
 function randomNumsInfo() {
   randomNums.value = nums.value.sort(() => Math.random() - 0.5);
-  btnInfos.value = [
-    { id: 0, num: randomNums.value[0], isPress: false },
-    { id: 1, num: randomNums.value[1], isPress: false },
-    { id: 2, num: randomNums.value[2], isPress: false },
-    { id: 3, num: randomNums.value[3], isPress: false },
-  ];
+  btnInfos.value = [];
+  for (let i = 0; i < nums.value.length; i++) {
+    btnInfos.value.push({
+      num: randomNums.value[i],
+      isPress: false,
+    });
+  }
 }
-
-// 初期パネルの生成
-let nums = ref<number[]>([]);
-for (let i = 0; i < 4; i++) {
-  nums.value.push(i);
-}
-let btnInfos = ref<any[]>([]);
-onMounted(() => {
-  randomNumsInfo();
-});
-
-// 初期値用の殻のパネルの生成
+// 初期値用の空のパネルの生成
 const empties = ref<any[]>([]);
-for (let i = 0; i < nums.value.length; i++) {
-  empties.value.push("");
+function createEmpty() {
+  for (let i = 0; i < nums.value.length; i++) {
+    empties.value.push("");
+  }
 }
+createEmpty();
 
 // タイマー処理
 let startTime = ref<number>(0);

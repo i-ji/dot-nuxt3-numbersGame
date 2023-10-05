@@ -1,6 +1,6 @@
 <template>
-  <div class="p-[10px] bg-white rounded-[4px] mb-2">
-    <ul class="flex flex-wrap">
+  <div class="p-[10px] bg-white rounded-[4px] mb-4">
+    <ul class="flex flex-wrap justify-between">
       <li
         class="bg-[#ccc] w-10 h-10 m-[5px] rounded-[4px]"
         v-for="empty in empties"
