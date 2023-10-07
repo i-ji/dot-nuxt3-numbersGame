@@ -21,6 +21,11 @@
       ></Board>
       <Button @activeBtn="activeBtn"></Button>
     </div>
+    <div class="flex justify-between w-[760px] mx-auto">
+      <Log :scores="easySliceScores" level="EASY"></Log>
+      <Log :scores="nomalSliceScores" level="NOMAL"></Log>
+      <Log :scores="hardSliceScores" level="HARD"></Log>
+    </div>
   </div>
 </template>
 
@@ -41,9 +46,9 @@
 <script setup lang="ts">
 // 難易度設定
 const levelInfos = ref<any[]>([
-  { id: 0, text: "EASY", selectedLevel: true, side: 4 },
-  { id: 1, text: "NOMAL", selectedLevel: false, side: 5 },
-  { id: 2, text: "HARD", selectedLevel: false, side: 6 },
+  { text: "EASY", selectedLevel: true, side: 4 },
+  { text: "NOMAL", selectedLevel: false, side: 5 },
+  { text: "HARD", selectedLevel: false, side: 6 },
 ]);
 let currentLevel = ref<number>(0);
 const changeLevel = (index: number) => {
@@ -126,6 +131,21 @@ const activeBtn = () => {
   runTimer();
 };
 
+// 記録
+const easyScores = ref<number[]>([]);
+const nomalScores = ref<number[]>([]);
+const hardScores = ref<number[]>([]);
+
+const easySliceScores = useCookie("sliceScores", {
+  default: () => [] as number[],
+});
+const nomalSliceScores = useCookie("sliceScores", {
+  default: () => [] as number[],
+});
+const hardSliceScores = useCookie("sliceScores", {
+  default: () => [] as number[],
+});
+
 // パネルを押した時の処理
 const isPress = (index: number) => {
   if (currentNumber.value !== btnInfos.value[index].num) {
@@ -136,6 +156,51 @@ const isPress = (index: number) => {
 
   if (currentNumber.value === nums.value.length) {
     clearTimeout(timeoutId);
+    if (nums.value.length === 16) {
+      easyAddScore();
+    } else if (nums.value.length === 25) {
+      nomalAddScore();
+    } else if (nums.value.length === 36) {
+      hardAddScore();
+    }
   }
 };
+
+// scoreInfosに追加する関数
+function compareFn(a: number, b: number) {
+  return a - b;
+}
+
+function easyAddScore() {
+  // if (nums.value.length === 16) {
+  console.log(nums.value + " easy");
+  // }
+
+  const easyTime = timer.value;
+  easyScores.value.push(easyTime);
+  easyScores.value.sort(compareFn);
+  easySliceScores.value = easyScores.value.slice(0, 4);
+}
+
+function nomalAddScore() {
+  // if (nums.value.length === 25) {
+  console.log(nums.value + " nomal");
+  // }
+
+  const nomalTime = timer.value;
+  nomalScores.value.push(nomalTime);
+  nomalScores.value.sort(compareFn);
+  nomalSliceScores.value = nomalScores.value.slice(0, 4);
+}
+
+function hardAddScore() {
+  // if (nums.value.length === 36) {
+  console.log(nums.value + " hard");
+  // }
+
+  const hardTime = timer.value;
+  hardScores.value.push(hardTime);
+  hardScores.value.sort(compareFn);
+  hardSliceScores.value = hardScores.value.slice(0, 4);
+}
 </script>
